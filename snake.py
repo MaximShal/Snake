@@ -35,6 +35,16 @@ class Snake:
             self.snake_head_dots.add((self.block_list[-1][0] + 10, self.block_list[-1][1] + i))
             self.snake_head_dots.add((self.block_list[-1][0] + i, self.block_list[-1][1] + 10))
 
+    def speed_up(self):
+        if self.snake_length != 1 and self.snake_length in [i for i in range(1, 1000, 50)] and self.flag:
+            if self.snake_speed <= 2:
+                self.snake_speed /= 2
+            else:
+                self.snake_speed -= 2
+            self.flag = False
+        elif self.snake_length != 1 and self.snake_length in [i for i in range(1, 1000, 60)]:
+            self.flag = True
+
     def output(self):
         # Малювання змії
         for i in self.block_list:
@@ -55,14 +65,8 @@ class Snake:
         self.dots_of_blocks()
 
         # Збільшення швидкості змії
-        if self.snake_length != 1 and self.snake_length in [i for i in range(1, 1000, 50)] and self.flag:
-            if self.snake_speed <= 2:
-                self.snake_speed /= 2
-            else:
-                self.snake_speed -= 2
-            self.flag = False
-        elif self.snake_length != 1 and self.snake_length in [i for i in range(1, 1000, 60)]:
-            self.flag = True
+        if self.snake_speed > 0.001:
+            self.speed_up()
 
         time.sleep(self.snake_speed/1000)
 
