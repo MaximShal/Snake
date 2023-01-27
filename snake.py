@@ -1,6 +1,5 @@
 import pygame
 import time
-from random import randint
 
 
 class Snake:
@@ -15,10 +14,26 @@ class Snake:
         self.x1_change = 0
         self.y1_change = 0
         self.block_list = []
-        self.snake_head = []
+        self.snake_body_dots = set()
+        self.snake_head_dots = set()
         self.snake_length = 1
-        self.snake_speed = 20   #Чим менший показник, тим більша швидкість
+        self.snake_speed = 10   #Чим менший показник, тим більша швидкість
         self.flag = True
+
+    def dots_of_blocks(self):
+        self.snake_body_dots = set()
+        self.snake_head_dots = set()
+        for k in self.block_list[:-21]:
+            for i in range(10):
+                self.snake_body_dots.add((k[0] + i, k[1]))
+                self.snake_body_dots.add((k[0], k[1] + i))
+                self.snake_body_dots.add((k[0] + 10, k[1] + i))
+                self.snake_body_dots.add((k[0] + i, k[1] + 10))
+        for i in range(10):
+            self.snake_head_dots.add((self.block_list[-1][0] + i, self.block_list[-1][1]))
+            self.snake_head_dots.add((self.block_list[-1][0], self.block_list[-1][1] + i))
+            self.snake_head_dots.add((self.block_list[-1][0] + 10, self.block_list[-1][1] + i))
+            self.snake_head_dots.add((self.block_list[-1][0] + i, self.block_list[-1][1] + 10))
 
     def output(self):
         # Малювання змії
@@ -29,70 +44,51 @@ class Snake:
         # Оновлення позиції змії
         self.x1 += self.x1_change
         self.y1 += self.y1_change
-        # Створення блоку змії
-        self.snake_head = [self.x1, self.y1]
-        self.block_list.append(self.snake_head)
+
+        # Створення блоку голови змії та видалення блоку хвоста
+        snake_head_xy = (self.x1, self.y1)
+        self.block_list.append(snake_head_xy)
         if len(self.block_list) > self.snake_length:
             del self.block_list[0]
+
+        # Перезапис крайніх точок всієї зміїї
+        self.dots_of_blocks()
+
         # Збільшення швидкості змії
-        if self.snake_length > 1:
-            if self.flag and self.snake_length % 25 == 1 and self.snake_speed > 2:
+        if self.snake_length != 1 and self.snake_length in [i for i in range(1, 1000, 50)] and self.flag:
+            if self.snake_speed <= 2:
+                self.snake_speed /= 2
+            else:
                 self.snake_speed -= 2
-                print(self.snake_speed)
-                self.flag = False
-            if self.flag == False and self.snake_length % 30 == 1:
-                self.flag = True
+            self.flag = False
+        elif self.snake_length != 1 and self.snake_length in [i for i in range(1, 1000, 60)]:
+            self.flag = True
+
         time.sleep(self.snake_speed/1000)
 
     def up(self):
         self.x1_change = 0
-        self.y1_change = -2
+        self.y1_change = -1
 
     def down(self):
         self.x1_change = 0
-        self.y1_change = 2
+        self.y1_change = 1
 
     def left(self):
-        self.x1_change = -2
+        self.x1_change = -1
         self.y1_change = 0
 
     def right(self):
-        self.x1_change = 2
+        self.x1_change = 1
         self.y1_change = 0
 
     def increase(self):
-        self.snake_length += 5
+        self.snake_length += 10
 
     def snake_death(self):
-        if self.x1 >= self.screen_width or self.x1 < 0 or self.y1 >= self.screen_height or self.y1 < 0:
+        # Перевірка зтикання змії з краєм єкрану та хвостом
+        if self.x1 + 10 >= self.screen_width or self.x1 < 0 or self.y1 + 10 >= self.screen_height or self.y1 < 0 or \
+                len(self.snake_head_dots.intersection(self.snake_body_dots)) != 0:
             return True
         else:
             return False
-
-
-class Food:
-    def __init__(self, snake, screen):
-        # Ініціалізація їжі
-        self.screen = screen
-        self.snake = snake
-        self.food_color = (255, 0, 0)
-        self.food_x = 0
-        self.food_y = 0
-        self.foods_list = []
-
-    def create_food(self):
-        #Створення блоку їжі
-        self.food_x = randint(10, self.snake.screen_width-10)
-        self.food_y = randint(10, self.snake.screen_height-10)
-        for i in self.snake.block_list:
-            if self.food_x in list(range(i[0], i[0]+10)) and self.food_y in list(range(i[1], i[1]+10)):
-                self.create_food()
-            else:
-                food_xy = [self.food_x, self.food_y]
-                self.foods_list.append(food_xy)
-
-    def draw(self):
-        #
-        if len(self.foods_list) > 1:
-            del self.foods_list[0]
-        pygame.draw.rect(self.screen, self.food_color, [self.foods_list[0][0], self.foods_list[0][1], 10, 10])
