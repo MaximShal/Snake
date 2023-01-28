@@ -27,7 +27,7 @@ def update(bg_color, screen, snake, food):
     pygame.display.flip()
 
 
-def check_collision(snake, food):
+def check_collision_food(snake, food):
     if len(snake.snake_head_dots.intersection(food.block)) != 0:
         food.create_food()
         snake.increase()

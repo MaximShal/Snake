@@ -15,10 +15,10 @@ class Food:
 
     def create_food(self):
         #Створення блоку їжі
-        self.food_x = randint(10, self.snake.screen_width-10)
-        self.food_y = randint(10, self.snake.screen_height-10)
-        for i in self.snake.block_list:
-            if self.food_x in list(range(i[0], i[0]+10)) and self.food_y in list(range(i[1], i[1]+10)):
+        self.food_x = randint(10, self.snake.screen_width-30)
+        self.food_y = randint(10, self.snake.screen_height-30)
+        for k in self.snake.block_list:
+            if self.food_x in list(range(k[0], k[0]+10)) and self.food_y in list(range(k[1], k[1]+10)):
                 self.create_food()
             else:
                 food_xy = [self.food_x, self.food_y]

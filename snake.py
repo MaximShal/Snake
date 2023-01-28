@@ -3,11 +3,12 @@ import time
 
 
 class Snake:
-    def __init__(self, screen, screen_width, screen_height):
+    def __init__(self, screen, screen_width, screen_height, bot):
         # Ініціалізація змії
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.screen = screen
+        self.bot = bot
         self.snake_color = (0, 255, 0)
         self.x1 = int(self.screen_width/2)
         self.y1 = int(self.screen_height/2)
@@ -17,7 +18,7 @@ class Snake:
         self.snake_body_dots = set()
         self.snake_head_dots = set()
         self.snake_length = 1
-        self.snake_speed = 10   #Чим менший показник, тим більша швидкість
+        self.snake_speed = 15   #Чим менший показник, тим більша швидкість
         self.flag = True
 
     def dots_of_blocks(self):
@@ -36,14 +37,15 @@ class Snake:
             self.snake_head_dots.add((self.block_list[-1][0] + i, self.block_list[-1][1] + 10))
 
     def speed_up(self):
-        if self.snake_length != 1 and self.snake_length in [i for i in range(1, 1000, 50)] and self.flag:
-            if self.snake_speed <= 2:
-                self.snake_speed /= 2
-            else:
-                self.snake_speed -= 2
-            self.flag = False
-        elif self.snake_length != 1 and self.snake_length in [i for i in range(1, 1000, 60)]:
-            self.flag = True
+        if self.snake_speed > 0.0001:
+            if self.snake_length != 1 and self.snake_length in [i for i in range(1, 1000, 50)] and self.flag:
+                if self.snake_speed <= 2:
+                    self.snake_speed /= 2
+                else:
+                    self.snake_speed -= 2
+                self.flag = False
+            elif self.snake_length != 1 and self.snake_length in [i for i in range(1, 1000, 60)]:
+                self.flag = True
 
     def output(self):
         # Малювання змії
@@ -91,8 +93,10 @@ class Snake:
 
     def snake_death(self):
         # Перевірка зтикання змії з краєм єкрану та хвостом
-        if self.x1 + 10 >= self.screen_width or self.x1 < 0 or self.y1 + 10 >= self.screen_height or self.y1 < 0 or \
-                len(self.snake_head_dots.intersection(self.snake_body_dots)) != 0:
+        if self.x1 + 10 >= self.screen_width or self.x1 < 0 or self.y1 + 10 >= self.screen_height or self.y1 < 0:
+            return True
+        elif len(self.snake_head_dots.intersection(self.snake_body_dots)) != 0:
+            self.bot.check_tail_on()
             return True
         else:
             return False
